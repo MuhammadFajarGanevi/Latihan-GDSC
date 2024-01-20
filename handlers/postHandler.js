@@ -1,5 +1,7 @@
 const {Router} = require('express')
 const {getRandomInt} = require('.././utils/randomNumber.js')
+const {postValidator} = require('../middleware/postValidator.js')
+const {putValidator} = require('../middleware/putValidator.js')
 const posts = []
 
 /**
@@ -12,12 +14,13 @@ const posts = []
 function setupPostHandler(router){
 
     // Method Post
-    router.post('/', (request, response) => {
+    router.post('/', postValidator, (request, response) => {
  
     posts.push({
-      "id": getRandomInt(20),
-      "username": request.body.username,
-      "password": request.body.password
+      "id": getRandomInt(99999),
+      "title": request.body.title,
+      "text": request.body.text,
+      "created_at": request.requestTime
     })
   
     response.json({
@@ -27,14 +30,7 @@ function setupPostHandler(router){
 
   //Method Get
   router.get('/', (request, response) => {
-    response.json({
-      "message": "this is home path"
-    })
-  })
   
-  router.get('/', (request, response) => {
-  
-      console.log(request.params, request.query)
       response.json({
           "data": posts
         })
@@ -42,13 +38,11 @@ function setupPostHandler(router){
   
   
   // Method Put
-  router.put('/:postId', (request, response) => {
-    console.log({updateData: request.body})
+  router.put('/:postId', putValidator, (request, response) => {
   
-    
     for(let i = 0; i < posts.length; i++) {
       if(posts[i].id == request.params.postId) {
-          posts[i].username = request.body.username
+          posts[i].title = request.body.title
   
           response.send(JSON.stringify({
               status: true,
@@ -59,10 +53,9 @@ function setupPostHandler(router){
      }
   
      response.json({
-      "message": `username with id ${request.params.postId} is not found`
+      "message": `title with id ${request.params.postId} is not found`
     })
   })
-  
   
   // Method Delete
   router.delete('/:postId', (request,response) =>{
